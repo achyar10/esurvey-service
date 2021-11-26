@@ -9,3 +9,10 @@ export class LoginAuthDto {
     password: string;
 
 }
+
+export class LoginRespondentDto {
+
+    @IsNotEmpty({ message: 'NIP or NIK required!' })
+    nik: string;
+
+}
