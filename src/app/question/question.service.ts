@@ -2,20 +2,20 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import BaseService from '../../base.service';
 import { Repository } from 'typeorm';
-import { Respondent } from './respondent.entity';
-import { CreateRespondentDto, QueryRespondentDto } from './respondent.dto';
+import { Question } from './question.entity';
+import { CreateQuestionDto, QueryQuestionDto, UpdateQuestionDto } from './question.dto';
 import { ResponseData } from '../../interfaces/response';
 import { ICredential } from '../../interfaces/credential';
 
 @Injectable()
-export class RespondentService extends BaseService {
+export class QuestionService extends BaseService {
 
     constructor(
-        @InjectRepository(Respondent)
-        private readonly respondentRepository: Repository<Respondent>,
+        @InjectRepository(Question)
+        private readonly questionRepository: Repository<Question>,
     ) { super() }
 
-    async findAll(query: QueryRespondentDto): Promise<ResponseData> {
+    async findAll(query: QueryQuestionDto): Promise<ResponseData> {
         const { page, limit, query_by, query_value } = query
 
         let filter: any = {}
@@ -28,7 +28,7 @@ export class RespondentService extends BaseService {
         let options: any = {
             where: filter,
             order: { id: "DESC" },
-            relations: ['education', 'job_status', 'job_title']
+            relations: ['question_category', 'answers']
         }
         if (page && limit) {
             options = {
@@ -37,7 +37,7 @@ export class RespondentService extends BaseService {
                 take: Number(limit),
             }
         }
-        const [result, total] = await this.respondentRepository.findAndCount(options);
+        const [result, total] = await this.questionRepository.findAndCount(options);
         const data = {
             rows: result,
             pages: Math.ceil(total / Number(limit)),
@@ -47,53 +47,43 @@ export class RespondentService extends BaseService {
     }
 
     async findOne(id: number): Promise<ResponseData> {
-        const data = await this.respondentRepository.findOne({
-            where: { id },
-            relations: ['education', 'job_status', 'job_title']
+        const data = await this.questionRepository.findOne({
+            where: { id: id },
+            relations: ['question_category', 'answers']
         });
         return this._success(HttpStatus.OK, 'OK', data)
     }
 
-    async create(dto: CreateRespondentDto, credential: ICredential): Promise<ResponseData> {
+    async create(dto: CreateQuestionDto, credential: ICredential): Promise<ResponseData> {
 
-        const check = await this.respondentRepository.findOne({ nik: dto.nik })
-        if (check) throw new HttpException('NIK / NIP sudah digunakan!', HttpStatus.BAD_REQUEST);
+        const answers: any = dto.answers
 
-        const data = new Respondent()
+        const data = new Question()
         data.created_by = credential.user.fullname
         data.updated_by = credential.user.fullname
-        data.nik = dto.nik
-        data.fullname = dto.fullname
-        data.gender = dto.gender
-        data.birthyear = dto.birthyear
-
-        data.education = dto.education_id
-        data.job_status = dto.job_status_id
-        data.job_title = dto.job_title_id
+        data.description = dto.description
         data.is_active = dto.is_active
-        const save = await this.respondentRepository.save(data)
+        data.question_category = dto.question_category_id
+        data.answers = answers
+        const save = await this.questionRepository.save(data)
         return this._success(HttpStatus.CREATED, 'Data has been saved', save);
     }
 
-    async update(id: number, dto: any, credential: ICredential): Promise<ResponseData> {
-        const check = await this.respondentRepository.findOne(id)
+    async update(id: number, data: UpdateQuestionDto, credential: ICredential): Promise<ResponseData> {
+        const check = await this.questionRepository.findOne(id)
         if (!check) throw new HttpException('Data not found!', HttpStatus.NOT_FOUND);
 
-        const save = await this.respondentRepository.save({
-            ...dto,
-            updated_by: credential.user.fullname,
-            id: id
-        })
+        const save = await this.questionRepository.save({ ...data, updated_by: credential.user.fullname, id: id })
         return this._success(HttpStatus.OK, 'Data has been updated', save);
     }
 
     async delete(id: number, credential: ICredential): Promise<ResponseData> {
-        const check = await this.respondentRepository.findOne(id)
+        const check = await this.questionRepository.findOne(id)
         if (!check) throw new HttpException('Data not found!', HttpStatus.NOT_FOUND);
 
         Promise.all([
-            this.respondentRepository.save({ updated_by: credential.user.fullname, id: id }),
-            this.respondentRepository.softRemove(check)
+            this.questionRepository.save({ updated_by: credential.user.fullname, id: id }),
+            this.questionRepository.softRemove(check)
         ])
         return this._success(HttpStatus.OK, 'Data has been deleted');
     }

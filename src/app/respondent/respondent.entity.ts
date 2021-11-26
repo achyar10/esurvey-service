@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, 
 import { Education } from "../education/education.entity";
 import { JobStatus } from "../job-status/job-status.entity";
 import { JobTitle } from "../job-title/job-title.entity";
+import { QuestionnaireRespondent } from "../questionnaire-respondent/questionnaire-respondent.entity";
 
 @Entity('respondents')
 export class Respondent {
@@ -56,4 +57,7 @@ export class Respondent {
     job_status: JobStatus
     @RelationId((field: Respondent) => field.job_status)
     job_status_id: number;
+
+    @OneToMany(() => QuestionnaireRespondent, data => data.respondent, { onDelete: 'CASCADE' })
+    questionnaires: QuestionnaireRespondent[];
 }

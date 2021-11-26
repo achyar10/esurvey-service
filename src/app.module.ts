@@ -7,6 +7,10 @@ import { AuthModule } from './app/auth/auth.module';
 import { EducationModule } from './app/education/education.module';
 import { JobStatusModule } from './app/job-status/job-status.module';
 import { JobTitleModule } from './app/job-title/job-title.module';
+import { QuestionCategoryModule } from './app/question-category/question-category.module';
+import { QuestionModule } from './app/question/question.module';
+import { QuestionnaireRespondentModule } from './app/questionnaire-respondent/questionnaire-respondent.module';
+import { QuestionnaireModule } from './app/questionnaire/questionnaire.module';
 import { RespondentModule } from './app/respondent/respondent.module';
 import { UserModule } from './app/user/user.module';
 import { JwtStrategy } from './utilities/strategy/jwt.strategy';
@@ -19,6 +23,10 @@ import { JwtStrategy } from './utilities/strategy/jwt.strategy';
     JobStatusModule,
     JobTitleModule,
     RespondentModule,
+    QuestionCategoryModule,
+    QuestionModule,
+    QuestionnaireModule,
+    QuestionnaireRespondentModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
