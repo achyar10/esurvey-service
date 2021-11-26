@@ -77,4 +77,19 @@ export class UserService extends BaseService {
         return this._success(HttpStatus.OK, 'Data has been updated', save);
     }
 
+    async delete(id: number, credential: ICredential): Promise<ResponseData> {
+        const check = await this.userRepository.findOne(id)
+        if (!check) throw new HttpException('Data not found!', HttpStatus.NOT_FOUND);
+        
+        if (check.id === credential.user.user_id) throw new HttpException('You can not delete yourself!', HttpStatus.BAD_REQUEST);
+        
+        if(check.role === 'superadmin') throw new HttpException('You can not delete this user!', HttpStatus.BAD_REQUEST);
+
+        Promise.all([
+            this.userRepository.save({ updated_by: credential.user.fullname, id: id }),
+            this.userRepository.softRemove(check)
+        ])
+        return this._success(HttpStatus.OK, 'Data has been deleted');
+    }
+
 }
