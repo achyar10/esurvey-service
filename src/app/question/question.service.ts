@@ -27,7 +27,7 @@ export class QuestionService extends BaseService {
         }
         let options: any = {
             where: filter,
-            order: { id: "DESC" },
+            order: { id: "ASC" },
             relations: ['question_category', 'answers']
         }
         if (page && limit) {
@@ -37,7 +37,11 @@ export class QuestionService extends BaseService {
                 take: Number(limit),
             }
         }
+
         const [result, total] = await this.questionRepository.findAndCount(options);
+        result.map(item => {
+            item.answers = this.sortArrayOfObjectsByKey(item.answers, 'index_code', 'asc')
+        })
         const data = {
             rows: result,
             pages: Math.ceil(total / Number(limit)),
@@ -87,5 +91,17 @@ export class QuestionService extends BaseService {
         ])
         return this._success(HttpStatus.OK, 'Data has been deleted');
     }
+
+    private sortArrayOfObjectsByKey(array: any[], key: string, order: string) {
+        return array.sort((a, b) => {
+            let x = a[key]; let y = b[key];
+            if (order === 'desc') {
+                return ((x < y) ? 1 : ((x > y) ? -1 : 0));
+            } else {
+                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+            }
+        });
+    }
+    
 
 }

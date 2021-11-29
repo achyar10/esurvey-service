@@ -18,6 +18,13 @@ export class CreateUserDto {
 
 }
 
+export class ResetPasswordDto {
+
+    @IsNotEmpty({ message: 'Password required!' })
+    password: string;
+
+}
+
 export class UpdateuserDto extends PartialType(CreateUserDto) { }
 
 export class QueryUserDto {

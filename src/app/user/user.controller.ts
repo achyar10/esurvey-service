@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../utilities/guards/jwt-guard.guard';
-import { QueryUserDto, CreateUserDto, UpdateuserDto } from './user.dto';
+import { QueryUserDto, CreateUserDto, UpdateuserDto, ResetPasswordDto } from './user.dto';
 import { UserService } from './user.service';
 import { ICredential } from '../../interfaces/credential';
 
@@ -33,6 +33,12 @@ export class UserController {
     @Delete(':id')
     async delete(@Param('id') id: string, @Req() credential: ICredential) {
         return await this.userService.delete(+id, credential)
+    }
+
+    @Post(':id/rpw')
+    @HttpCode(200)
+    async rpw(@Param('id') id: string, @Body() dto: ResetPasswordDto) {
+        return await this.userService.resetPassword(+id, dto)
     }
 
 }

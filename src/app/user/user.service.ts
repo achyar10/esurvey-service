@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseData } from '../../interfaces/response';
 import { Repository } from 'typeorm';
 import BaseService from '../../base.service';
-import { QueryUserDto, CreateUserDto } from './user.dto';
+import { QueryUserDto, CreateUserDto, ResetPasswordDto } from './user.dto';
 import { User } from './user.entity';
 import Helper from '../../utilities/authentication';
 import { ICredential } from '../../interfaces/credential';
@@ -90,6 +90,13 @@ export class UserService extends BaseService {
             this.userRepository.softRemove(check)
         ])
         return this._success(HttpStatus.OK, 'Data has been deleted');
+    }
+
+    async resetPassword(id: number, data: ResetPasswordDto): Promise<ResponseData> {
+        const check = await this.userRepository.findOne(id)
+        if (!check) throw new HttpException('Data not found!', HttpStatus.NOT_FOUND);
+        await this.userRepository.update(id, { password: await Helper.hashing(data.password) })
+        return this._success(HttpStatus.OK, 'Data has been updated');
     }
 
 }

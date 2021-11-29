@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import BaseService from '../../base.service';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Respondent } from './respondent.entity';
 import { CreateRespondentDto, QueryRespondentDto } from './respondent.dto';
 import { ResponseData } from '../../interfaces/response';
@@ -20,9 +20,16 @@ export class RespondentService extends BaseService {
 
         let filter: any = {}
         if (query_by && query_value) {
-            filter = {
-                ...filter,
-                [query_by]: query_value
+            if (query_by === 'fullname') {
+                filter = {
+                    ...filter,
+                    fullname: ILike(`%${query_value}%`)
+                }
+            } else {
+                filter = {
+                    ...filter,
+                    [query_by]: query_value
+                }
             }
         }
         let options: any = {
