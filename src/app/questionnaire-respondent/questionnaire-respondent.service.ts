@@ -6,6 +6,8 @@ import { QuestionnaireRespondent } from './questionnaire-respondent.entity';
 import { CreateQuestionnaireRespondentDto, QueryQuestionnaireRespondentDto, UpdateQuestionnaireRespondentDto } from './questionnaire-respondent.dto';
 import { ResponseData } from '../../interfaces/response';
 import { ICredential } from '../../interfaces/credential';
+import { Questionnaire } from '../questionnaire/questionnaire.entity';
+import * as moment from 'moment';
 
 @Injectable()
 export class QuestionnaireRespondentService extends BaseService {
@@ -13,6 +15,8 @@ export class QuestionnaireRespondentService extends BaseService {
     constructor(
         @InjectRepository(QuestionnaireRespondent)
         private readonly questRespondentRepository: Repository<QuestionnaireRespondent>,
+        @InjectRepository(Questionnaire)
+        private readonly questionnaireRepository: Repository<Questionnaire>,
     ) { super() }
 
     async findAll(query: QueryQuestionnaireRespondentDto): Promise<ResponseData> {
@@ -51,13 +55,37 @@ export class QuestionnaireRespondentService extends BaseService {
     }
 
     async create(dto: CreateQuestionnaireRespondentDto): Promise<ResponseData> {
-        const data = new QuestionnaireRespondent()
 
+        const dataQuestionnaires = await this.questionnaireRepository.find({
+            select: ['id', 'start_date', 'end_date', 'is_limit', 'max_respondent'],
+            order: { id: "DESC" }
+        })
+        let next: boolean = false;
+        let questionnaire_id: any;
+        for (const q of dataQuestionnaires) {
+            const now = moment().format('YYYY-MM-DD')
+            if (moment(now).isBetween(q.start_date, q.end_date)) {
+                next = true;
+                questionnaire_id = q.id;
+                break;
+            }
+        }
+        if (!next) throw new HttpException('Belum ada periode pengisian kuesioner', HttpStatus.BAD_REQUEST);
+
+        const check = await this.questRespondentRepository.findOne({
+            where: {
+                questionnaire: questionnaire_id,
+                respondent: dto.respondent_id
+            }
+        })
+        if (check) throw new HttpException('Responden sudah pernah mengisi kuesioner di periode ini', HttpStatus.BAD_REQUEST);
+
+        const data = new QuestionnaireRespondent()
         data.respondent = dto.respondent_id
-        data.questionnaire = dto.questionnaire_id
+        data.questionnaire = questionnaire_id
         data.suggestion = dto.suggestion
         data.answers = dto.answers
-        
+
         const save = await this.questRespondentRepository.save(data)
         return this._success(HttpStatus.CREATED, 'Data has been saved', save);
     }

@@ -51,7 +51,7 @@ export class AuthService extends BaseService {
       // Check Respondent
       const respondent = await this.respondentRepository.findOne({
         where: { nik: dto.nik, is_active: true },
-        select: ['id', 'nik', 'fullname', 'is_active'],
+        select: ['id', 'nik', 'fullname', 'gender', 'is_active'],
         relations: ['education', 'job_title', 'job_status']
       })
       if (!respondent) throw new UnauthorizedException('Respondent tidak terdaftar atau belum aktif!');
@@ -60,6 +60,7 @@ export class AuthService extends BaseService {
         respondent_id: respondent.id,
         nik: respondent.nik,
         fullname: respondent.fullname,
+        gender: respondent.gender === 'male' ? 'Laki-laki' : 'Perempuan',
         is_active: respondent.is_active,
         education: respondent.education.name,
         job_title: respondent.job_title.name,
