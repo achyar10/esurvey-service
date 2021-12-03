@@ -12,6 +12,7 @@ import { QuestionModule } from './app/question/question.module';
 import { QuestionnaireRespondentModule } from './app/questionnaire-respondent/questionnaire-respondent.module';
 import { QuestionnaireModule } from './app/questionnaire/questionnaire.module';
 import { RespondentModule } from './app/respondent/respondent.module';
+import { ResultModule } from './app/result/result.module';
 import { UserModule } from './app/user/user.module';
 import { JwtStrategy } from './utilities/strategy/jwt.strategy';
 
@@ -27,6 +28,7 @@ import { JwtStrategy } from './utilities/strategy/jwt.strategy';
     QuestionModule,
     QuestionnaireModule,
     QuestionnaireRespondentModule,
+    ResultModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       useFactory: async () => {
