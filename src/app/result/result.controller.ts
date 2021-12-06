@@ -16,5 +16,10 @@ export class ResultController {
         return await this.resultService.getQuestionnaire();
     }
 
+    @Get('chart/:id')
+    async getChart(@Param('id') id: string) {
+        return await this.resultService.getChart(+id);
+    }
+
 
 }

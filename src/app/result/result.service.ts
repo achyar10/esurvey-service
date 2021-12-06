@@ -7,6 +7,8 @@ import { Repository } from 'typeorm';
 import { ResponseData } from '../../interfaces/response';
 import { IResultRespondent } from './result.interface';
 import { Questionnaire } from '../questionnaire/questionnaire.entity';
+import { Question } from '../question/question.entity';
+import { RespondentAnswer } from '../respondent-answer/respondent-answer.entity';
 
 @Injectable()
 export class ResultService extends BaseService {
@@ -18,11 +20,16 @@ export class ResultService extends BaseService {
         private readonly categoryRepository: Repository<QuestionCategory>,
         @InjectRepository(QuestionnaireRespondent)
         private readonly questionnaireRespondentRepository: Repository<QuestionnaireRespondent>,
+        @InjectRepository(Question)
+        private readonly questionRepository: Repository<Question>,
+        @InjectRepository(RespondentAnswer)
+        private readonly respondentAnswerRepository: Repository<RespondentAnswer>,
     ) { super() }
 
     async getQuestionnaire(): Promise<ResponseData> {
         const data = await this.questionnaireRepository.find({
             select: ['id', 'name', 'start_date', 'end_date'],
+            order: { id: 'DESC' }
         })
         return this._success(HttpStatus.OK, 'OK', data);
     }
@@ -78,6 +85,39 @@ export class ResultService extends BaseService {
             details: result,
             skm: (result.reduce((a, b) => a + b.nrr, 0) * 25).toFixed(2),
         });
+    }
+
+    async getChart(id: number): Promise<ResponseData> {
+        const questions = await this.questionRepository.find({
+            select: ['id', 'description'],
+            relations: ['answers']
+        })
+
+        const answers = await this.respondentAnswerRepository.createQueryBuilder('rs')
+            .leftJoin('rs.question_answer', 'question_answer')
+            .leftJoin('rs.questionnaire_respondent', 'questionnaire_respondent')
+            .leftJoin('questionnaire_respondent.questionnaire', 'questionnaire')
+            .where('questionnaire.id = :id', { id })
+            .select(['rs.id', 'question_answer.id', 'questionnaire_respondent.id', 'questionnaire.id'])
+            .getMany();
+
+        const result: any[] = []
+        for (const q of questions) {
+
+            result.push({
+                description: q.description,
+                answers: q.answers.map(el => {
+                    const check = answers.filter(a => a.question_answer.id === el.id);
+                    return {
+                        answer_description: el.index_name,
+                        total: check.length,
+                    }
+                })
+
+            })
+        }
+
+        return this._success(HttpStatus.OK, 'OK', result);
     }
 
 

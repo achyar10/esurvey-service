@@ -5,9 +5,11 @@ export class CreateQuestionnaireRespondentDto {
 
     @IsNotEmpty()
     respondent_id: any;
+
+    @IsNotEmpty()
+    suggestion: string;
     
     questionnaire_id: any;
-    suggestion: string;
     answers: any[];
 
 }
