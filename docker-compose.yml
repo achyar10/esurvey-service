@@ -9,9 +9,9 @@ services:
       PORT: "7002"
       JWT_SECRET: "3SurveyBp1"
       JWT_EXPIRATION: "24h"
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_USERNAME: "postgres"
+      DB_HOST: mysql5
+      DB_PORT: "3306"
+      DB_USERNAME: "root"
       DB_PASSWORD: "mujahid212"
       DB_DATABASE: "esurvey"
     ports:

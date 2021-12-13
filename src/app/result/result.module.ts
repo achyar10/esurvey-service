@@ -7,9 +7,13 @@ import { Questionnaire } from '../questionnaire/questionnaire.entity';
 import { ResultService } from './result.service';
 import { Question } from '../question/question.entity';
 import { RespondentAnswer } from '../respondent-answer/respondent-answer.entity';
+import { Respondent } from '../respondent/respondent.entity';
+import { User } from '../user/user.entity';
 
 @Module({
     imports: [TypeOrmModule.forFeature([
+        Respondent,
+        User,
         QuestionCategory, 
         Questionnaire, 
         QuestionnaireRespondent,

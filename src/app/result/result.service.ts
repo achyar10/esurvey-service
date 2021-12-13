@@ -9,11 +9,17 @@ import { IResultRespondent } from './result.interface';
 import { Questionnaire } from '../questionnaire/questionnaire.entity';
 import { Question } from '../question/question.entity';
 import { RespondentAnswer } from '../respondent-answer/respondent-answer.entity';
+import { Respondent } from '../respondent/respondent.entity';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class ResultService extends BaseService {
 
     constructor(
+        @InjectRepository(Respondent)
+        private readonly respondentRepository: Repository<Respondent>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
         @InjectRepository(Questionnaire)
         private readonly questionnaireRepository: Repository<Questionnaire>,
         @InjectRepository(QuestionCategory)
@@ -117,6 +123,23 @@ export class ResultService extends BaseService {
             })
         }
 
+        return this._success(HttpStatus.OK, 'OK', result);
+    }
+
+    async dashboard(id: number): Promise<ResponseData> {
+        const respondent = await this.respondentRepository.count();
+        const users = await this.userRepository.count();
+        const questionnaire = await this.questionnaireRepository.count();
+        const respondentQuestionnaire = await this.questionnaireRespondentRepository.count({
+            where: { questionnaire: id }
+        });
+
+        const result = {
+            total_respondent: respondent,
+            total_user: users,
+            total_questionnaire: questionnaire,
+            total_respondent_questionnaire: respondentQuestionnaire,
+        }
         return this._success(HttpStatus.OK, 'OK', result);
     }
 

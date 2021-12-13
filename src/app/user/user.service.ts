@@ -28,7 +28,7 @@ export class UserService extends BaseService {
         }
         let options: any = {
             where: filter,
-            select: ['id', 'username', 'fullname', 'role', 'is_active', 'created_at'],
+            select: ['id', 'username', 'fullname', 'role', 'is_active', 'created_at', 'updated_at', 'created_by', 'updated_by'],
             order: { fullname: "ASC" }
         }
         if (page && limit) {

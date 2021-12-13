@@ -21,5 +21,10 @@ export class ResultController {
         return await this.resultService.getChart(+id);
     }
 
+    @Get('dashboard/:id')
+    async getDashboard(@Param('id') id: string) {
+        return await this.resultService.dashboard(+id);
+    }
+
 
 }
