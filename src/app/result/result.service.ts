@@ -11,6 +11,7 @@ import { Question } from '../question/question.entity';
 import { RespondentAnswer } from '../respondent-answer/respondent-answer.entity';
 import { Respondent } from '../respondent/respondent.entity';
 import { User } from '../user/user.entity';
+import * as moment from 'moment';
 
 @Injectable()
 export class ResultService extends BaseService {
@@ -143,5 +144,39 @@ export class ResultService extends BaseService {
         return this._success(HttpStatus.OK, 'OK', result);
     }
 
+    async resultRespondent(id: number): Promise<ResponseData> {
+        const respondents = await this.respondentRepository.find({
+            where: { is_active: true },
+            select: ['id', 'nik', 'fullname'],
+            order: { fullname: 'ASC' }
+        });
 
+        const questionnaire = await this.questionnaireRespondentRepository.find({
+            where: { questionnaire: id },
+            select: ['id', 'suggestion', 'respondent', 'questionnaire', 'created_at'],
+            relations: ['respondent']
+        });
+        const result: any[] = []
+        for (const r of respondents) {
+            let suggestion: string = ''
+            let is_questionnaire: boolean = false
+            let date: string = ''
+            for (const q of questionnaire) {
+                if (r.id === q.respondent.id) {
+                    suggestion = q.suggestion
+                    is_questionnaire = true
+                    date = moment(q.created_at).format('DD/MM/YYYY')
+                }
+            }
+            result.push({
+                id: r.id,
+                nik: r.nik,
+                fullname: r.fullname,
+                suggestion,
+                is_questionnaire,
+                date
+            })
+        }
+        return this._success(HttpStatus.OK, 'OK', result);
+    }
 }

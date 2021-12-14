@@ -26,5 +26,10 @@ export class ResultController {
         return await this.resultService.dashboard(+id);
     }
 
+    @Get('respondent/:id')
+    async getResultRespondent(@Param('id') id: string) {
+        return await this.resultService.resultRespondent(+id);
+    }
+
 
 }
