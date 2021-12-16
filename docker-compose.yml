@@ -12,13 +12,13 @@ services:
       DB_HOST: mysql5
       DB_PORT: "3306"
       DB_USERNAME: "root"
-      DB_PASSWORD: "mujahid212"
+      DB_PASSWORD: "bpikemendesa123!#"
       DB_DATABASE: "esurvey"
     ports:
       - "127.0.0.1:7002:7002"
     networks:
-      - matik_network
+      - bpi_network
 
 networks:
-  matik_network:
+  bpi_network:
     external: true
