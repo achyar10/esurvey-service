@@ -9,7 +9,6 @@ export class CreateRespondentDto {
     @IsNotEmpty({ message: 'Name required!' })
     fullname: string;
     
-    @IsNotEmpty({ message: 'Gender required!' })
     gender: string;
 
     @IsNotEmpty({ message: 'Birth Year required!' })
